@@ -21,6 +21,9 @@ Intelbras-first computer vision alert relay for sensitive resort zones (almoxari
 - `wrangler.toml`: deployment config and `ZONE_CONFIG_JSON`.
 - `app/`: legacy FastAPI implementation kept as rollback/reference.
 - `Dockerfile`, `docker-compose.yml`: legacy local/container path (not used for Cloudflare deploy).
+- `AGENTS.md`: first-read guide for coding agents working in this repo.
+- `docs/ARCHITECTURE.md`: detailed runtime, policy, and state behavior.
+- `docs/ORCHESTRATION.md`: multi-agent collaboration and handoff playbook.
 
 ## Quick start (local)
 
