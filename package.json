@@ -5,11 +5,9 @@
   "scripts": {
     "cf:preview": "wrangler dev",
     "cf:deploy": "wrangler deploy",
-    "cf:containers:list": "wrangler containers list",
-    "cf:containers:images": "wrangler containers images list"
+    "cf:tail": "wrangler tail ez-watch"
   },
   "devDependencies": {
-    "@cloudflare/containers": "^0.0.20",
     "@cloudflare/workers-types": "^4.20260219.0",
     "typescript": "^5.7.3",
     "wrangler": "^4.66.0"

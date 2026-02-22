@@ -5,29 +5,12 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 APP_ENV = "prod"
-LISTEN_HOST = "0.0.0.0"
-LISTEN_PORT = "8000"
-ZONE_CONFIG_PATH = "configs/zones.yaml"
-DB_PATH = "data/alert_relay.db"
-RETENTION_DAYS = "30"
-CLEANUP_INTERVAL_EVENTS = "200"
 DEFAULT_TIMEZONE = "America/Sao_Paulo"
 WHATSAPP_ENABLED = "true"
 WHATSAPP_TIMEOUT_SEC = "5"
-EMAIL_ENABLED = "false"
-SMTP_PORT = "587"
-SMTP_STARTTLS = "true"
-SMTP_FROM = "ez-watch@resort.local"
-EMAIL_TO_CSV = ""
 CAMERA_HEALTH_ENABLED = "true"
 CAMERA_OFFLINE_THRESHOLD_SEC = "180"
-CAMERA_HEALTH_CHECK_INTERVAL_SEC = "60"
-CAMERA_OFFLINE_ALERT_COOLDOWN_SEC = "900"
-
-[[containers]]
-class_name = "AlertRelayContainer"
-image = "./Dockerfile"
-max_instances = 4
+ZONE_CONFIG_JSON = '''{"zones":[{"zone_id":"almoxarifado","site_id":"resort-a","camera_ids":["cam-001","cam-002"],"severity":"high","active_schedule":{"timezone":"America/Sao_Paulo","windows":[{"days":["mon","tue","wed","thu","fri","sat","sun"],"start":"00:00","end":"23:59"}]},"alert_destinations":["whatsapp","email"],"suppression_window_sec":60,"dedupe_window_sec":30},{"zone_id":"bar-backoffice","site_id":"resort-a","camera_ids":["cam-010"],"severity":"medium","active_schedule":{"timezone":"America/Sao_Paulo","windows":[{"days":["mon","tue","wed","thu","fri","sat","sun"],"start":"18:00","end":"06:00"}]},"alert_destinations":["whatsapp"],"suppression_window_sec":45,"dedupe_window_sec":20},{"zone_id":"cash-corridor","site_id":"resort-a","camera_ids":["cam-020","cam-021"],"severity":"high","active_schedule":{"timezone":"America/Sao_Paulo","windows":[{"days":["mon","tue","wed","thu","fri","sat","sun"],"start":"00:00","end":"23:59"}]},"alert_destinations":["whatsapp","email"],"suppression_window_sec":90,"dedupe_window_sec":30}]}'''
 
 [[durable_objects.bindings]]
 name = "ALERT_RELAY"

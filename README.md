@@ -5,26 +5,22 @@ Intelbras-first computer vision alert relay for sensitive resort zones (almoxari
 ## What is implemented
 
 - `POST /v1/events/cv` for CV events from VMS/NVR (`intelbras` or `hikvision`).
-- Zone policy engine loaded from YAML:
+- Zone policy engine loaded from Worker env (`ZONE_CONFIG_JSON`):
   - camera-to-zone mapping validation,
   - active schedule checks,
   - dedupe + suppression windows.
 - Alert delivery:
-  - primary: WhatsApp webhook,
-  - fallback: SMTP email.
-- Structured event and alert persistence in SQLite.
-- 30-day retention cleanup (configurable).
-- Camera heartbeat endpoint + offline alert monitor.
-- Prometheus metrics endpoint.
+  - primary: WhatsApp webhook.
+- Runtime persistence for dedupe/suppression/metrics in Durable Object storage.
+- Camera heartbeat endpoint (offline monitor intentionally out of pure Worker MVP scope).
+- Prometheus-style metrics endpoint.
 
 ## Project structure
 
-- `app/main.py`: FastAPI app and endpoints.
-- `app/relay.py`: core processing logic.
-- `app/store.py`: SQLite persistence.
-- `app/channels.py`: WhatsApp/email integrations.
-- `app/zones.py`: YAML zone loader.
-- `configs/zones.yaml`: zone policy file.
+- `cloudflare/worker/src/index.ts`: pure Worker + Durable Object runtime.
+- `wrangler.toml`: deployment config and `ZONE_CONFIG_JSON`.
+- `app/`: legacy FastAPI implementation kept as rollback/reference.
+- `Dockerfile`, `docker-compose.yml`: legacy local/container path (not used for Cloudflare deploy).
 
 ## Quick start (local)
 
@@ -49,10 +45,10 @@ docker compose up --build
 - API: `http://localhost:8000`
 - MailPit UI (if email fallback is enabled): `http://localhost:8025`
 
-## Cloudflare Workers (same style as ez-match)
+## Cloudflare Workers (pure Worker MVP, no Docker)
 
-This repo now uses root-level `wrangler.toml` and `npm run cf:*` scripts, like `ez-match`.
-Cloudflare Containers currently requires Docker running locally during `wrangler deploy`.
+This repo uses root-level `wrangler.toml` and `npm run cf:*` scripts, like `ez-match`.
+Cloudflare deployment is pure Worker + Durable Object and does not require Docker.
 
 1. Install JS tooling:
 
@@ -70,9 +66,6 @@ Optional secrets:
 
 ```bash
 npx wrangler secret put WHATSAPP_BEARER_TOKEN
-npx wrangler secret put SMTP_HOST
-npx wrangler secret put SMTP_USERNAME
-npx wrangler secret put SMTP_PASSWORD
 ```
 
 3. Preview locally with Wrangler:
@@ -91,10 +84,11 @@ npm run cf:deploy
    - `https://<worker>.workers.dev/health/live`
    - `https://<worker>.workers.dev/health/ready`
    - `https://<worker>.workers.dev/v1/zones`
+   - `https://<worker>.workers.dev/metrics`
 
 ## Zone config format
 
-`configs/zones.yaml`
+Worker runtime uses `ZONE_CONFIG_JSON` in `wrangler.toml`, equivalent to this structure:
 
 ```yaml
 zones:
@@ -171,17 +165,16 @@ Possible statuses:
 
 ## Environment variables
 
-All settings are documented in `.env.example`.
+Cloudflare Worker runtime is configured by `wrangler.toml` vars and Worker secrets.
 
-Minimum required for WhatsApp delivery:
+Required for WhatsApp delivery:
 
 - `WHATSAPP_ENABLED=true`
-- `WHATSAPP_WEBHOOK_URL=<provider webhook>`
+- Worker secret `WHATSAPP_WEBHOOK_URL=<provider webhook>`
 
-For email fallback:
+Optional:
 
-- `EMAIL_ENABLED=true`
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, `EMAIL_TO_CSV`
+- Worker secret `WHATSAPP_BEARER_TOKEN`
 
 ## Test
 
@@ -193,5 +186,5 @@ pytest -q
 
 - Configure Intelbras Defense IA / SIM Next `URL command` action pointing to:
   - `POST https://<relay-host>/v1/events/cv`
-- Keep VMS email action as native fallback in addition to relay fallback.
+- Keep VMS email action as native fallback if you need fallback outside pure Worker MVP.
 - Face recognition is intentionally excluded from MVP workflows.
