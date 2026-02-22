@@ -1,0 +1,38 @@
+name = "ez-watch"
+main = "cloudflare/worker/src/index.ts"
+compatibility_date = "2026-02-22"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+APP_ENV = "prod"
+LISTEN_HOST = "0.0.0.0"
+LISTEN_PORT = "8000"
+ZONE_CONFIG_PATH = "configs/zones.yaml"
+DB_PATH = "data/alert_relay.db"
+RETENTION_DAYS = "30"
+CLEANUP_INTERVAL_EVENTS = "200"
+DEFAULT_TIMEZONE = "America/Sao_Paulo"
+WHATSAPP_ENABLED = "true"
+WHATSAPP_TIMEOUT_SEC = "5"
+EMAIL_ENABLED = "false"
+SMTP_PORT = "587"
+SMTP_STARTTLS = "true"
+SMTP_FROM = "ez-watch@resort.local"
+EMAIL_TO_CSV = ""
+CAMERA_HEALTH_ENABLED = "true"
+CAMERA_OFFLINE_THRESHOLD_SEC = "180"
+CAMERA_HEALTH_CHECK_INTERVAL_SEC = "60"
+CAMERA_OFFLINE_ALERT_COOLDOWN_SEC = "900"
+
+[[containers]]
+class_name = "AlertRelayContainer"
+image = "./Dockerfile"
+max_instances = 4
+
+[[durable_objects.bindings]]
+name = "ALERT_RELAY"
+class_name = "AlertRelayContainer"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["AlertRelayContainer"]

@@ -1,18 +1,18 @@
 from __future__ import annotations
 
 from datetime import datetime, time
-from enum import StrEnum
+from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class VendorType(StrEnum):
+class VendorType(str, Enum):
     INTELBRAS = "intelbras"
     HIKVISION = "hikvision"
 
 
-class EventType(StrEnum):
+class EventType(str, Enum):
     INTRUSION = "intrusion"
     LINE_CROSS = "line_cross"
     REGION_ENTRY = "region_entry"
@@ -21,13 +21,13 @@ class EventType(StrEnum):
     CAMERA_DISCONNECT = "camera_disconnect"
 
 
-class Severity(StrEnum):
+class Severity(str, Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
 
 
-class DayOfWeek(StrEnum):
+class DayOfWeek(str, Enum):
     MON = "mon"
     TUE = "tue"
     WED = "wed"

@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.env
+node_modules/
+.wrangler/
+.dev.vars
+coverage.xml
+htmlcov/
+*.db
+data/*.db
