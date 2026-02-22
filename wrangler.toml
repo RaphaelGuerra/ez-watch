@@ -6,8 +6,8 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 APP_ENV = "prod"
 DEFAULT_TIMEZONE = "America/Sao_Paulo"
-WHATSAPP_ENABLED = "true"
-WHATSAPP_TIMEOUT_SEC = "5"
+PUSHOVER_ENABLED = "true"
+PUSHOVER_TIMEOUT_MS = "8000"
 CAMERA_HEALTH_ENABLED = "true"
 CAMERA_OFFLINE_THRESHOLD_SEC = "180"
 ZONE_CONFIG_JSON = '''{"zones":[{"zone_id":"almoxarifado","site_id":"resort-a","camera_ids":["cam-001","cam-002"],"severity":"high","active_schedule":{"timezone":"America/Sao_Paulo","windows":[{"days":["mon","tue","wed","thu","fri","sat","sun"],"start":"00:00","end":"23:59"}]},"alert_destinations":["whatsapp","email"],"suppression_window_sec":60,"dedupe_window_sec":30},{"zone_id":"bar-backoffice","site_id":"resort-a","camera_ids":["cam-010"],"severity":"medium","active_schedule":{"timezone":"America/Sao_Paulo","windows":[{"days":["mon","tue","wed","thu","fri","sat","sun"],"start":"18:00","end":"06:00"}]},"alert_destinations":["whatsapp"],"suppression_window_sec":45,"dedupe_window_sec":20},{"zone_id":"cash-corridor","site_id":"resort-a","camera_ids":["cam-020","cam-021"],"severity":"high","active_schedule":{"timezone":"America/Sao_Paulo","windows":[{"days":["mon","tue","wed","thu","fri","sat","sun"],"start":"00:00","end":"23:59"}]},"alert_destinations":["whatsapp","email"],"suppression_window_sec":90,"dedupe_window_sec":30}]}'''

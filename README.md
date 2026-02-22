@@ -10,7 +10,7 @@ Intelbras-first computer vision alert relay for sensitive resort zones (almoxari
   - active schedule checks,
   - dedupe + suppression windows.
 - Alert delivery:
-  - primary: WhatsApp webhook.
+  - primary: Pushover API.
 - Runtime persistence for dedupe/suppression/metrics in Durable Object storage.
 - Camera heartbeat endpoint (offline monitor intentionally out of pure Worker MVP scope).
 - Prometheus-style metrics endpoint.
@@ -59,13 +59,15 @@ npm install
 2. Set required Worker secrets:
 
 ```bash
-npx wrangler secret put WHATSAPP_WEBHOOK_URL
+npx wrangler secret put PUSHOVER_APP_TOKEN
+npx wrangler secret put PUSHOVER_USER_KEY
 ```
 
 Optional secrets:
 
 ```bash
-npx wrangler secret put WHATSAPP_BEARER_TOKEN
+# optional: tune timeout in wrangler.toml (milliseconds)
+# PUSHOVER_TIMEOUT_MS = "8000"
 ```
 
 3. Preview locally with Wrangler:
@@ -167,14 +169,15 @@ Possible statuses:
 
 Cloudflare Worker runtime is configured by `wrangler.toml` vars and Worker secrets.
 
-Required for WhatsApp delivery:
+Required for Pushover delivery:
 
-- `WHATSAPP_ENABLED=true`
-- Worker secret `WHATSAPP_WEBHOOK_URL=<provider webhook>`
+- `PUSHOVER_ENABLED=true`
+- Worker secret `PUSHOVER_APP_TOKEN=<pushover app token>`
+- Worker secret `PUSHOVER_USER_KEY=<pushover user/group key>`
 
 Optional:
 
-- Worker secret `WHATSAPP_BEARER_TOKEN`
+- `PUSHOVER_TIMEOUT_MS=8000` (milliseconds)
 
 ## Test
 

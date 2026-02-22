@@ -16,16 +16,17 @@ From project root:
 npm install
 ```
 
-Set required secrets (minimum WhatsApp webhook):
+Set required secrets (Pushover):
 
 ```bash
-npx wrangler secret put WHATSAPP_WEBHOOK_URL
+npx wrangler secret put PUSHOVER_APP_TOKEN
+npx wrangler secret put PUSHOVER_USER_KEY
 ```
 
 Optional secrets:
 
 ```bash
-npx wrangler secret put WHATSAPP_BEARER_TOKEN
+# optional: set PUSHOVER_TIMEOUT_MS in wrangler.toml
 ```
 
 Deploy Worker:

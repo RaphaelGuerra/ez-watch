@@ -61,7 +61,7 @@ const WEEKDAY_INDEX: DayOfWeek[] = ["sun", "mon", "tue", "wed", "thu", "fri", "s
 
 const METRIC_EVENTS_RECEIVED = "metric:events_received:";
 const METRIC_EVENTS_SUPPRESSED = "metric:events_suppressed:";
-const METRIC_ALERTS_SENT = "metric:alerts_sent:whatsapp:";
+const METRIC_ALERTS_SENT = "metric:alerts_sent:pushover:";
 
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -393,7 +393,7 @@ export class AlertRelayContainer implements DurableObject {
       });
     }
 
-    const sent = await this.sendWhatsApp(parsed, zone, eventDate, defaultTimezone);
+    const sent = await this.sendPushover(parsed, zone, eventDate, defaultTimezone);
     if (!sent.ok) {
       await this.incrementCounter(`${METRIC_ALERTS_SENT}failed`);
       return jsonResponse(502, { detail: sent.reason });
@@ -468,21 +468,23 @@ export class AlertRelayContainer implements DurableObject {
     };
   }
 
-  private async sendWhatsApp(
+  private async sendPushover(
     event: CVEventIn,
     zone: ZoneConfig,
     eventDate: Date,
     defaultTimezone: string,
   ): Promise<{ ok: true } | { ok: false; reason: string }> {
-    if (!zone.alert_destinations.includes("whatsapp")) {
+    const allowsPushover =
+      zone.alert_destinations.includes("pushover") || zone.alert_destinations.includes("whatsapp");
+    if (!allowsPushover) {
       return { ok: false, reason: "no_delivery_channel_configured" };
     }
 
-    if (this.env.WHATSAPP_ENABLED !== "true") {
+    if (this.env.PUSHOVER_ENABLED === "false") {
       return { ok: false, reason: "no_delivery_channel_configured" };
     }
 
-    if (!this.env.WHATSAPP_WEBHOOK_URL) {
+    if (!this.env.PUSHOVER_APP_TOKEN || !this.env.PUSHOVER_USER_KEY) {
       return { ok: false, reason: "no_delivery_channel_configured" };
     }
 
@@ -522,38 +524,37 @@ export class AlertRelayContainer implements DurableObject {
       textLines.push(`Media: ${message.action_link}`);
     }
 
-    const headers: HeadersInit = {
-      "content-type": "application/json",
-    };
+    const timeoutMsRaw = Number.parseInt(this.env.PUSHOVER_TIMEOUT_MS || "8000", 10);
+    const timeoutMs = Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0 ? timeoutMsRaw : 8000;
 
-    if (this.env.WHATSAPP_BEARER_TOKEN) {
-      headers["authorization"] = `Bearer ${this.env.WHATSAPP_BEARER_TOKEN}`;
-    }
-
-    const timeoutSeconds = Number.parseFloat(this.env.WHATSAPP_TIMEOUT_SEC || "5");
-    const timeoutMs = Number.isFinite(timeoutSeconds) && timeoutSeconds > 0 ? timeoutSeconds * 1000 : 5000;
+    const form = new URLSearchParams({
+      token: this.env.PUSHOVER_APP_TOKEN,
+      user: this.env.PUSHOVER_USER_KEY,
+      title: `[EZ-WATCH] ${message.title}`.slice(0, 100),
+      message: textLines.join("\n").slice(0, 1024),
+      priority: "2",
+      retry: "30",
+      expire: "600",
+      sound: "persistent",
+    });
 
     try {
-      const response = await fetch(this.env.WHATSAPP_WEBHOOK_URL, {
+      const response = await fetch("https://api.pushover.net/1/messages.json", {
         method: "POST",
-        headers,
-        body: JSON.stringify({
-          text: textLines.join("\n"),
-          event: message,
-        }),
+        body: form,
         signal: AbortSignal.timeout(timeoutMs),
       });
 
       if (!response.ok) {
-        return { ok: false, reason: "whatsapp_send_failed" };
+        return { ok: false, reason: "pushover_send_failed" };
       }
 
       return { ok: true };
     } catch (error) {
       if (error instanceof Error && error.name === "TimeoutError") {
-        return { ok: false, reason: "whatsapp_timeout" };
+        return { ok: false, reason: "pushover_timeout" };
       }
-      return { ok: false, reason: "whatsapp_send_failed" };
+      return { ok: false, reason: "pushover_send_failed" };
     }
   }
 
@@ -588,7 +589,7 @@ export class AlertRelayContainer implements DurableObject {
     const alerts = await this.state.storage.list<number>({ prefix: METRIC_ALERTS_SENT });
     for (const [key, value] of alerts) {
       const status = key.slice(METRIC_ALERTS_SENT.length);
-      lines.push(toPrometheusLine("cv_alerts_sent_total", { channel: "whatsapp", status }, value ?? 0));
+      lines.push(toPrometheusLine("cv_alerts_sent_total", { channel: "pushover", status }, value ?? 0));
     }
 
     lines.push("");
@@ -612,10 +613,10 @@ interface Env {
   ALERT_RELAY: DurableObjectNamespace;
   APP_ENV?: string;
   DEFAULT_TIMEZONE?: string;
-  WHATSAPP_ENABLED?: string;
-  WHATSAPP_WEBHOOK_URL?: string;
-  WHATSAPP_TIMEOUT_SEC?: string;
-  WHATSAPP_BEARER_TOKEN?: string;
+  PUSHOVER_ENABLED?: string;
+  PUSHOVER_APP_TOKEN?: string;
+  PUSHOVER_USER_KEY?: string;
+  PUSHOVER_TIMEOUT_MS?: string;
   CAMERA_HEALTH_ENABLED?: string;
   CAMERA_OFFLINE_THRESHOLD_SEC?: string;
   ZONE_CONFIG_JSON?: string;
