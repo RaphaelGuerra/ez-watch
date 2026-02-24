@@ -1,5 +1,16 @@
 # Cloudflare Workers Deployment (Pure Worker + Durable Object)
 
+Last updated: 2026-02-24
+
+## Table of Contents
+
+<!-- TOC start -->
+- [Requirements](#requirements)
+- [Deploy](#deploy)
+- [Endpoints](#endpoints)
+- [Notes](#notes)
+<!-- TOC end -->
+
 This setup runs the alert relay directly in a Cloudflare Worker backed by a Durable Object.
 No Docker or Cloudflare Containers is required.
 

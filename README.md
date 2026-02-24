@@ -1,5 +1,25 @@
 # EZ-WATCH Alert Relay (MVP)
 
+Last updated: 2026-02-24
+
+## Table of Contents
+
+<!-- TOC start -->
+- [What is implemented](#what-is-implemented)
+- [Project structure](#project-structure)
+- [Quick start (local)](#quick-start-local)
+- [Quick start (Docker)](#quick-start-docker)
+- [Cloudflare Workers (pure Worker MVP, no Docker)](#cloudflare-workers-pure-worker-mvp-no-docker)
+- [Zone config format](#zone-config-format)
+- [API contracts](#api-contracts)
+  - [`POST /v1/events/cv`](#post-v1eventscv)
+  - [`POST /v1/health/camera-ping`](#post-v1healthcamera-ping)
+  - [Health and metrics](#health-and-metrics)
+- [Environment variables](#environment-variables)
+- [Test](#test)
+- [Operational notes](#operational-notes)
+<!-- TOC end -->
+
 Intelbras-first computer vision alert relay for sensitive resort zones (almoxarifado, bars, cash/backoffice), with Hikvision-compatible event ingestion.
 
 ## What is implemented
