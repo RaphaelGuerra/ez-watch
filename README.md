@@ -20,6 +20,9 @@ Last updated: 2026-03-05
 - [Operational notes](#operational-notes)
 <!-- TOC end -->
 
+[![Lint](https://github.com/RaphaelGuerra/ez-watch/actions/workflows/lint.yml/badge.svg)](https://github.com/RaphaelGuerra/ez-watch/actions/workflows/lint.yml)
+[![Security](https://github.com/RaphaelGuerra/ez-watch/actions/workflows/security.yml/badge.svg)](https://github.com/RaphaelGuerra/ez-watch/actions/workflows/security.yml)
+
 Intelbras-first computer vision alert relay for sensitive resort zones (almoxarifado, bars, cash/backoffice), with Hikvision-compatible event ingestion.
 
 ## What is implemented
